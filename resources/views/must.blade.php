@@ -26,8 +26,7 @@
         .Countdown-con {padding: 4px 15px 0px;}
     </style>
 </head>
-@yield('content')
-<script src="{{url('js/jquery190_1.js')}}" language="javascript" type="text/javascript"></script>
+@yield('content')   
 <script src="{{url('js/jquery-1.11.2.min.js')}}"></script>
 <script src="{{url('layui/layui.js')}}"></script>
 <script src="{{url('js/all.js')}}"></script>
@@ -39,8 +38,7 @@
 <script src="{{url('js/swiper.min.js')}}"></script>
 <script src="{{url('js/photo.js')}}" charset="utf-8"></script>
 <script src="{{url('js/jquery-3.2.1.min.js')}}"></script>
-<script>
-    @yield('my-js')
-</script>
+@yield('my-js')
+
 
 

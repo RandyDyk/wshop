@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Model\Goods;
 use App\Model\Cart;
 use App\Model\Category;
+use App\Model\Address;
 use App\Http\Requests\UserValidate;
 use  App\Model\UserModel;
 class IndexController extends Controller
@@ -18,6 +19,7 @@ class IndexController extends Controller
 
         return view('index',['arr'=>$arr,'data'=>$data]);
     }
+
     //所有商品
     public function allshops(Request $request)
     {
@@ -40,6 +42,7 @@ class IndexController extends Controller
        // print_r($arr);die;
         return view('allshops',['cate'=>$cate,'arr'=>$arr,'id'=>$id]);
     }
+
     //无限极分类
     public function getId($allid,$id)
     {
@@ -51,19 +54,19 @@ class IndexController extends Controller
         }
         return $idall;
     }
-    //购物车
+
+    //购物车展示
     public function buycar()
     {
-        $data=Cart::join('goods','cart.goods_id','=','goods.goods_id')->get();
-        // var_dump($data);exit;
         $id=session('id');
-        
         if(empty($id)){
            return view('login');
         }else{
+            $data=Goods::join('cart','goods.goods_id','=','cart.goods_id')->where(['goods.user_id'=>$id,'goods.is_del'=>1])->get();
             return view('shopcart',['data'=>$data]);
         }
     }
+
     //添加购物车
     public function addcart(Request $request)
     {
@@ -93,22 +96,81 @@ class IndexController extends Controller
             echo 2;exit;
         }
     }
+
     //删除购物车
-    public function delcart(Request $request){
-        $goods_id=$request->goods_id;
-        // var_dump($goods_id);
-        $res=Cart::where('goods_id',$goods_id)->delete();
+    public function delcart(Request $request)
+    {
+        $data=$request->post();
+        $goods_id=$data['goods_id'];
+        // var_dump($goods_id);exit;
+        $type=$data['type'];
+        if($type==1){
+            $res=Cart::where('goods_id',$goods_id)->delete();
+            if($res){
+                echo 1;
+            }else{
+                echo 2;exit;
+            }
+        }else{
+            $goods_id=explode(',',$goods_id);
+            // $res=Cart::where('goods_id',$goods_id)->get();
+            // var_dump($res);exit;
+            $res=Cart::whereIn('goods_id',$goods_id)->delete();
+            if($res){
+                echo 1;
+            }else{
+                echo 2;exit;
+            }
+        }
+        
+        
+    }
+
+    //点击加号点击减号
+    public function updatecart(Request $request)
+    {
+        $data=$request->post();
+        // var_dump($data);exit;
+        $num=$data['num'];
+        
+        $goods_id=$data['goods_id'];
+        // var_dump($goods_id);exit;
+        $res=Cart::where('goods_id',"$goods_id")->update(['buy_num'=>$num]);
         if($res){
             echo 1;
         }else{
             echo 2;exit;
         }
+        
     }
+
+    //结算
+    public function payment(Request $request)
+    {
+        $data=$request->post();
+        $goods_id=$data['goods_id'];
+        session(['goods_id'=>$goods_id]);
+        // var_dump($data);
+    }
+
+    // 结算视图
+    public function paymentshow()
+    {
+        $goods_id=session('goods_id');
+        $user_id=session('id');
+        // var_dump($user_id);exit;
+        $goods_id=explode(',',$goods_id);
+        $arr=Goods::join('cart','cart.goods_id','=','goods.goods_id')->where('cart.user_id',$user_id)->whereIn('goods.goods_id',$goods_id)->get();
+        //  var_dump($arr);exit;
+        return view('paymentshow',['arr'=>$arr]);
+    }
+    
     //个人页
     public function userpage()
     {
         return view('userpage');
     }
+
     //商品详情
     public function shopcontent(Request $request)
     {
@@ -116,11 +178,13 @@ class IndexController extends Controller
         $arr=Goods::where('goods_id',$id)->first();
         return view('shopcontent',['arr'=>$arr]);
     }
+
     //登陆
     public function login()
     {
         return view('login');
     }
+
     //登陆执行
     public function logindo(UserValidate $request)
     {
@@ -149,11 +213,13 @@ class IndexController extends Controller
                 }
             }
     }
+
     //注册
     public function register()
     {
         return view('register');
     }
+
     //注册执行 跳验证码
     public function registerdo(UserValidate $request)
     {
@@ -176,8 +242,10 @@ class IndexController extends Controller
             echo 2;exit;
         }
     }
-    //短信验证码
-    public function code(Request $request){
+    
+    //短信验证码        
+    public function code(Request $request)
+    {
         $data=$request->post();
         $code=rand(1000,9999);
         $phone=$data['reg_tel'];
@@ -185,6 +253,7 @@ class IndexController extends Controller
         session(['reg_tel'=>$phone]);
         $this->sendcode($code,$phone);
     }
+
     //发送短信验证码
     public function sendcode($code,$phone)
     {
@@ -212,5 +281,81 @@ class IndexController extends Controller
         }
             var_dump(curl_exec($curl));
     }
+
+    //收货地址展示
+    public function address()
+    {   
+        $data=Address::join('user','address.user_id','=','user.user_id')->get();
+        // var_dump($data);exit;
+        return view('address',['data'=>$data]);
+    }
+
+    //添加收货地址
+    public function writeaddr()
+    {
+        return view('writeaddr');
+    }
+
+    //添加收货地址执行
+    public function writeaddrdo(Request $request)
+    {
+        $data=$request->post();
+        $data=$data['obj'];
+        // var_dump($data);exit;
+        $res=Address::insert($data);
+        if($res){
+            echo 1;
+        }else{
+            echo 2;exit;
+        }
+        
+    }
+
     
+    //修改地址
+    public function updateaddr(Request $request)
+    {
+        $address_id=$request->address_id;
+        // var_dump($address_id);exit;
+        $data=Address::where('address_id',$address_id)->first();
+        // dd($data);exit;s
+        return view('updateaddr',['data'=>$data]);
+    }
+
+    //修改收货地址执行
+    public function updateaddrdo(Request $request)
+    {
+        $data=$request->post();
+        $address_id=$data['address_id'];
+        $data=$data['obj'];
+        // var_dump($data);
+        $res=Address::where('address_id',$address_id)->update($data);
+        // echo $res;
+        if($res){
+            echo 1;
+        }else{
+            echo 2;exit;
+        }
+    }
+
+    //删除修改地址
+    public function deladdr(Request $request)
+    {
+        $address_id=$request->address_id;
+        $res=Address::where('address',$address_id)->delete();
+        // echo $res;
+        if($res){
+            echo 1;
+        }else{
+            echo 2;exit;
+        }
+        // var_dump($data);
+    }
+
+    //设为默认地址
+    // public function addressdefault(Request $request)
+    // {
+    //     $address_id=$request->address_id;
+    //     var_dump();
+    // }
 }

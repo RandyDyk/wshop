@@ -239,7 +239,7 @@
                   function (res) {
                     if(res==1){
                         layer.msg('注册成功',{icon:1,time:3000},function(){
-                            location.href="{{url('IndexController/Login')}}";
+                            location.href="{{url('IndexController/login')}}";
                         });
                     }else if(res==2){
                         layer.msg('注册失败',{icon:2});

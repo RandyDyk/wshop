@@ -1,5 +1,4 @@
 @extends('must')
-@section('title','buycar')
 @section('content')
 <body id="loadingPicBlock" class="g-acc-bg">
     <input name="hidUserID" type="hidden" id="hidUserID" value="-1" />
@@ -13,28 +12,27 @@
         <div class="g-Cart-list">
             <ul id="cartBody">
                 @foreach($data as $v)
-                <li>
-                    <s class="xuan current"></s>
-                    <a class="fl u-Cart-img" href="/v44/product/12501977.do">
+                <li goods_id="{{$v->goods_id}}">
+                    <s class="xuan current" goods_id="{{$v->goods_id}}"></s>
+                    <a class="fl u-Cart-img" href="{{url('IndexController/shopcontent')}}/{{$v->goods_id}}">
                         <img src="https://img.1yyg.net/GoodsPic/pic-200-200/20170607160417995.jpg" border="0" alt="">
                     </a>
                     <div class="u-Cart-r">
                         <a href="/v44/product/12501977.do" class="gray6">{{$v->goods_name}}</a>
                         <span class="gray9">
-                            <em>剩余124人次</em>
+                            <em>{{$v->self_price}}</em>
                         </span>
-                        <input class="text_box" name="num" maxlength="6" type="hidden" value="{{$v->self_price}}" codeid="12501977">
-                        <div class="num-opt">
+                        
+                        <div class="num-opt" >
                             <em class="num-mius dis min"><i></i></em>
                             <input class="text_box" name="num" maxlength="6" type="text" value="{{$v->buy_num}}" codeid="12501977">
                             <em class="num-add add"><i></i></em>
                         </div>
-                        <a href="javascript:;" name="delLink" id="del" cid="12501977" isover="0" class="z-del"><s></s></a>
-                        <input type="hidden" id="goods_id" value="{{$v->goods_id}}">
+                        <input type="hidden" id="_token" name="_token" value="<?php echo csrf_token(); ?>">
+                        <a href="javascript:;" name="delLink"  id="del" goods_id="{{$v->goods_id}}" cid="12501977" isover="0" class="z-del"><s></s></a>
                     </div>    
                 </li>
                 @endforeach
-                <input type="hidden" id="_token" name="_token" value="<?php echo csrf_token(); ?>">
             </ul>
             <div id="divNone" class="empty "  style="display: none"><s></s><p>您的购物车还是空的哦~</p><a href="https://m.1yyg.com" class="orangeBtn">立即潮购</a></div>
         </div>
@@ -47,7 +45,7 @@
                 </dt>
                 <dd>
                     <a href="javascript:;" id="a_payment" class="orangeBtn w_account remove">删除</a>
-                    <a href="javascript:;" id="a_payment" class="orangeBtn w_account">去结算</a>
+                    <a href="javascript:;" id="a_payment"  class="orangeBtn payment">去结算</a>
                 </dd>
             </dl>
         </div>
@@ -150,115 +148,204 @@
         
 
 <div class="footer clearfix">
-    <ul>
+<ul>
         <li class="f_home"><a href="{{url('/')}}" ><i></i>潮购</a></li>
         <li class="f_single"><a href="/v41/post/index.do" ><i></i>晒单</a></li>
         <li class="f_car"><a id="btnCart" href="{{url('IndexController/buycar')}}" class="hover"><i></i>购物车</a></li>
         <li class="f_personal"><a href="{{url('IndexController/userpage')}}" ><i></i>我的潮购</a></li>
     </ul>
 </div>
-
-
-
-</body>
-</html>
 @endsection
 @section('my-js')
-    $(function(){
+<!---商品加减算总数---->
+<script type="text/javascript">
+    $(function () {
+
+        //删除
         layui.use(['layer'],function(){
             var layer=layui.layer;
+            var _token=$('#_token').val();
             $(document).on('click','#del',function(){
-                var goods_id=$('#goods_id').val();
-                var _token=$('#_token').val();
+                var goods_id=$('#del').attr('goods_id');
+                
                 $.post(
                     "{{url('IndexController/delcart')}}",
-                    {goods_id:goods_id,_token:_token},
+                    {goods_id:goods_id,_token:_token,type:1},
                     function(res){
-                        console.log(res);
+                        // console.log(res);
+                        if(res==1){
+                            layer.msg('删除成功',{icon:1});
+                            history.go(0);
+                        }else{
+                            layer.msg('删除失败',{icon:2});
+                        }
                     }
                 )
             })
-        })
-    })
-    @endsection
-    <!---商品加减算总数---->
-    <script type="text/javascript">
-        $(function () {
+            //批量删除
+            $(document).on('click','.remove',function(){
+                var goods_id='';
+                $(".g-Cart-list .xuan").each(function(){
+                    if($(this).hasClass('current')){
+                        for (var i = 0 ; i<$(this).length; i++){
+                            goods_id+=parseInt($(this).attr('goods_id'))+',';
+                        }
+                    }
+                });
+                goods_id=goods_id.substr(0,goods_id.length-1);
+                // console.log(goods_id);
+                $.post(
+                    "{{url('IndexController/delcart')}}",
+                    {goods_id:goods_id,_token:_token,type:2},
+                    function(res){
+                        console.log(res);
+                        if(res==1){
+                            layer.msg('删除成功',{icon:1});
+                            history.go(0);
+                        }else{
+                            layer.msg('删除失败',{icon:2});
+                        }
+                    }
+                )
+            })
+            //点击加号
             $(".add").click(function () {
+                var _token=$('#_token').val();
                 var t = $(this).prev();
                 t.val(parseInt(t.val()) + 1);
+                var num=t.val();
+                var goods_id=$(this).parents('li').attr('goods_id');
+                $.post(
+                    "{{url('IndexController/updatecart')}}",
+                    {num:num,goods_id:goods_id,_token:_token},
+                    function(res){
+                        if(res==1){
+                            layer.msg('好',{icon:1});
+                        }
+                    }
+                )
                 GetCount();
             })
+            //点击减号
             $(".min").click(function () {
                 var t = $(this).next();
                 if(t.val()>1){
                     t.val(parseInt(t.val()) - 1);
+                    var num=t.val();
+                    var goods_id=$(this).parents('li').attr('goods_id');
+                    var _token=$('#_token').val();
+                    $.post(
+                        "{{url('IndexController/updatecart')}}",
+                        {num:num,goods_id:goods_id,_token:_token},
+                        function(res){
+                            if(res==1){
+                                layer.msg('好',{icon:1});
+                            }
+                        }
+                    )
                     GetCount();
                 }
             })
-        })
-    </script>
-    <script>
-
-        // 全选
-        $(".quanxuan").click(function () {
-            if($(this).hasClass('current')){
-                $(this).removeClass('current');
-
-                $(".g-Cart-list .xuan").each(function () {
-                    if ($(this).hasClass("current")) {
-                        $(this).removeClass("current");
-                    } else {
-                        $(this).addClass("current");
+            //结算
+            $('.payment').click(function(){
+                var goods_id='';
+                var _token=$('#_token').val();
+                $(".g-Cart-list .xuan").each(function(){
+                    if($(this).hasClass('current')){
+                        for (var i = 0 ; i<$(this).length; i++){
+                            goods_id+=parseInt($(this).attr('goods_id'))+',';
+                        }
                     }
                 });
-                GetCount();
-            }else{
-                $(this).addClass('current');
+                goods_id=goods_id.substr(0,goods_id.length-1);
+                $.post(
+                    "{{url('IndexController/payment')}}",
+                    {goods_id:goods_id,_token:_token},
+                    function(res){
+                        // console.log(res);
+                        location.href="{{url('IndexController/paymentshow')}}"
+                    }
+                )
+            })
 
-                $(".g-Cart-list .xuan").each(function () {
+
+        })
+
+      
+    })
+</script>
+
+<script>
+    // 全选        
+    $(".quanxuan").click(function () {
+        if($(this).hasClass('current')){
+            $(this).removeClass('current');
+
+             $(".g-Cart-list .xuan").each(function () {
+                if ($(this).hasClass("current")) {
+                    $(this).removeClass("current");
+
+                } else {
                     $(this).addClass("current");
-                    // $(this).next().css({ "background-color": "#3366cc", "color": "#ffffff" });
-                });
-                GetCount();
-            }
+                } 
+            });
+            GetCount();
+        }else{
+            $(this).addClass('current');
 
+             $(".g-Cart-list .xuan").each(function () {
+                $(this).addClass("current");
+                // $(this).next().css({ "background-color": "#3366cc", "color": "#ffffff" });
+            });
+            GetCount();
+        }
+        
+        
+    });
+    // 单选
+    $(".g-Cart-list .xuan").click(function () {
+        if($(this).hasClass('current')){
+            
 
-        });
-        // 单选
-        $(".g-Cart-list .xuan").click(function () {
-            if($(this).hasClass('current')){
+            $(this).removeClass('current');
 
-
-                $(this).removeClass('current');
-
-            }else{
-                $(this).addClass('current');
-            }
-            if($('.g-Cart-list .xuan.current').length==$('#cartBody li').length){
+        }else{
+            $(this).addClass('current');
+        }
+        if($('.g-Cart-list .xuan.current').length==$('#cartBody li').length){
                 $('.quanxuan').addClass('current');
 
             }else{
                 $('.quanxuan').removeClass('current');
             }
-            // $("#total2").html() = GetCount($(this));
-            GetCount();
-            //alert(conts);
-        });
-        // 已选中的总额
-        function GetCount() {
-            var conts = 0;
-            var aa = 0;
-            $(".g-Cart-list .xuan").each(function () {
-                if ($(this).hasClass("current")) {
-                    for (var i = 0; i < $(this).length; i++) {
-                        conts += parseInt($(this).parents('li').find('input.text_box').val());
-                        // aa += 1;
-                    }
-                }
-            });
-
-            $(".total").html('<span>￥</span>'+(conts).toFixed(2));
-        }
+        // $("#total2").html() = GetCount($(this));
         GetCount();
-    </script>
+        //alert(conts);
+    });
+    // 已选中的总额
+    function GetCount() {
+        var conts = 0;
+        var aa = 0; 
+        $(".g-Cart-list .xuan").each(function () {
+            if ($(this).hasClass("current")) {
+                // console.log($(this).length);
+                for (var i = 0; i < $(this).length; i++) {
+                    var self_price=$(this).parents('li').find('span.gray9').text();
+                    var num=$(this).parents('li').find('input.text_box').val();
+                    var all_price=num*self_price;
+                    // console.log(all_price);
+                    // conts += parseInt($(this).parents('li').find('span.gray9').text());
+                    conts +=parseInt(all_price);
+                     
+                    // aa += 1;
+                }
+            }
+        });
+        
+         $(".total").html('<span>￥</span>'+(conts).toFixed(2));
+    }
+    GetCount();
+</script>
+@endsection
+</body>
+</html>

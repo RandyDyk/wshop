@@ -1,17 +1,5 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
-    <title>结算支付</title>
-    <meta content="app-id=984819816" name="apple-itunes-app" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no, maximum-scale=1.0" />
-    <meta content="yes" name="apple-mobile-web-app-capable" />
-    <meta content="black" name="apple-mobile-web-app-status-bar-style" />
-    <meta content="telephone=no" name="format-detection" />
-    <link href="css/comm.css" rel="stylesheet" type="text/css" />
-    <link rel="stylesheet" href="css/cartlist.css">
-    <link rel="stylesheet" href="layui/css/layui.css">
-</head>
+@extends('must')
+@section('content')
 <body>
     
 <!--触屏版内页头部-->
@@ -23,7 +11,8 @@
 <div>
         <div class="g-pay-lst">
             <ul>
-                <li>
+                @foreach($arr as $v)
+                <li >
                     <a href="">
                         <span>
                             <img src="https://img.1yyg.net/GoodsPic/pic-200-200/20160908092215288.jpg" border="0" alt="">
@@ -31,44 +20,18 @@
                         <dl>
                             <dt>
                                 
-                                    (第449560潮)苹果（Apple）iPhone 7 Plus 128G版 4G手机
+                                   {{$v->goods_name}}
                             </dt>
-                            <dd><em class="price">1</em>人次/<em>￥1.00</em></dd>
+                            <dd><em class="price">{{$v->self_price}}</em>￥/<em class='num'>{{$v->buy_num}}</em><em>件</em></dd>
                         </dl>
                     </a>
                 </li>
-                <li>
-                    <a href="">
-                        <span>
-                            <img src="https://img.1yyg.net/GoodsPic/pic-200-200/20160908092215288.jpg" border="0" alt="">
-                        </span>
-                        <dl>
-                            <dt>
-                                
-                                    (第449560潮)苹果（Apple）iPhone 7 Plus 128G版 4G手机
-                            </dt>
-                            <dd><em class="price">1</em>人次/<em>￥1.00</em></dd>
-                        </dl>
-                    </a>
-                </li>
-                <li>
-                    <a href="">
-                        <span>
-                            <img src="https://img.1yyg.net/GoodsPic/pic-200-200/20160908092215288.jpg" border="0" alt="">
-                        </span>
-                        <dl>
-                            <dt>
-                                
-                                    (第449560潮)苹果（Apple）iPhone 7 Plus 128G版 4G手机
-                            </dt>
-                            <dd><em class="price">1</em>人次/<em>￥1.00</em></dd>
-                        </dl>
-                    </a>
-                </li>
+                @endforeach
             </ul>
             <div id="divMore">
                 
             </div>
+        
             <p class="gray9">总需支付金额：<em class="orange"><i>￥</i>1.00</em></p>
         </div>
 
@@ -126,23 +89,24 @@
                 <input type="submit" value="取消" class="button  cancel" id="cancelbtn">
                 <input type="submit" value="确定" class="button" id="subbtn">
             </div>
-        </div>
-            
+</div>
+@endsection
 
-<script src="js/jquery-1.11.2.min.js"></script>
-<script src="js/all.js"></script>
-<script src="layui/layui.js"></script>
-
+@section('my-js')
 
 <script>
 	
 	$(document).ready(function(){
 		var total=0;
-		console.log($('.g-pay-lst li').length);
+       
+		// console.log($('.g-pay-lst li').length);
 		for(var i = 0;i<$('.g-pay-lst li').length;i++){
-		
-			total +=parseInt($('.g-pay-lst li').eq(i).find('dd em.price').text());
-
+            var num = $('.g-pay-lst li').eq(i).find('dd em.num').text()
+            var price = $('.g-pay-lst li').eq(i).find('dd em.price').text()
+            var allprice=num*price;
+            // console.log(allprice);
+			total +=parseInt(allprice);
+            // console.log(total);
 		}
 		$('.gray9 .orange').html('<i>￥</i>'+total.toFixed(2));
 		$('.wzf .orange').html('<span class="colorbbb">需要支付&nbsp;</span><b>￥</b>'+total.toFixed(2));
@@ -257,5 +221,6 @@
     })
         
 </script>
+@endsection
 </body>
 </html>

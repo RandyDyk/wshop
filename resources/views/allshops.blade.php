@@ -104,6 +104,9 @@
                                     </div>
                                 </li>
                                     @endforeach
+
+
+
                             </ul>
                         </div>
                     </div>
@@ -129,6 +132,7 @@
     @endsection
 @section('my-js')
 
+<script type="text/javascript">
        $(function(){
         layui.use(['layer'],function(){
             var layer=layui.layer;
@@ -157,9 +161,9 @@
                 })
             })
        })
-       
+</script>
 @endsection
-    <script>
+<script>
         jQuery(document).ready(function() {
             $("img.lazy").lazyload({
                 placeholder : "images/loading2.gif",
@@ -167,14 +171,14 @@
             });
         });
 
-    </script>
-    <script>
+</script>
+<script>
         // 点击切换类别
         $('#sortListUl li').click(function(){
             $(this).addClass('current').siblings('li').removeClass('current');
         })
-    </script>
-    <script>
+</script>
+<script>
         mui.init({
             pullRefresh: {
                 container: '#pullrefresh',
@@ -281,5 +285,5 @@
         //         mui('#pullrefresh').pullRefresh().pullupLoading();
         //     });
         // }
-    </script>
+</script>
 

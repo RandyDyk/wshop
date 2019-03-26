@@ -220,13 +220,13 @@
     @endsection
 @section('my-js')
 
-
+<script>
 $(function(){
         layui.use(['layer'],function(){
             var layer=layui.layer;
                 $(document).on('click','.fr',function(){
                     var goods_id=$(this).attr('goods_id');
-                    console.log(goods_id);
+                    // console.log(goods_id);
                     var _token=$("#_token").val();
                     $.post(
                         "{{url('IndexController/addcart')}}",
@@ -246,7 +246,7 @@ $(function(){
                 })
             })
        })
-@endsection
+       </script>
 <script>
     $(function () {  
         $('.hotimg').flexslider({   
@@ -313,5 +313,5 @@ $(function(){
         })
     }) 
 </script>
-
+@endsection
 

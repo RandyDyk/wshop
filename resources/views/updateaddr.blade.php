@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
-    <title>填写收货地址</title>
+    <title>修改收货地址</title>
     <meta content="app-id=984819816" name="apple-itunes-app" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no, maximum-scale=1.0" />
     <meta content="yes" name="apple-mobile-web-app-capable" />
@@ -17,7 +17,7 @@
     
   <!--触屏版内页头部-->
   <div class="m-block-header" id="div-header">
-      <strong id="m-title">填写收货地址</strong>
+      <strong id="m-title">修改收货地址</strong>
       <a href="javascript:history.back();" class="m-back-arrow"><i class="m-public-icon"></i></a>
       <a href="javascript:;" class="m-index-icon" id="btn">保存</a>
   </div>
@@ -28,13 +28,18 @@
   </form> -->
   <form class="layui-form" action="">
     <div class="addrcon">
+    <input type="hidden" id="address_id" value="{{$data->address_id}}">
       <ul>
-        <li><em>收货人</em><input type="text" placeholder="请填写真实姓名" name="address_name" id="address_name"></li>
-        <li><em>手机号码</em><input type="number" placeholder="请输入手机号" id="address_tel" name="address_tel"></li>
-        <li><em>所在区域</em><input type="text" placeholder="请选择所在区域" name="address_area" id="address_area"></li></li>
-        <li class="addr-detail"><em>详细地址</em><input type="text" placeholder="20个字以内" class="addr" name="address_desc" id="address_desc"></li>
+        <li><em>收货人</em><input type="text" placeholder="请填写真实姓名"  id="address_name" value='{{$data->address_name}}'></li>
+        <li><em>手机号码</em><input type="number" placeholder="请输入手机号" id="address_tel" name="address_tel" value='{{$data->address_tel}}'></li>
+        <li><em>所在区域</em><input type="text" placeholder="请选择所在区域" name="address_area" id="address_area" value='{{$data->address_area}}'></li></li>
+        <li class="addr-detail"><em>详细地址</em><input type="text" placeholder="20个字以内" class="addr" name="address_desc" id="address_desc" value='{{$data->address_desc}}'></li>
       </ul>
+      @if($data->is_default==1)
+      <div class="setnormal"><span>设为默认地址</span><input type="checkbox" id="checked" name="is_default" lay-skin="switch" checked>  </div>
+      @else
       <div class="setnormal"><span>设为默认地址</span><input type="checkbox" id="checked" name="is_default" lay-skin="switch">  </div>
+      @endif
       <input type="hidden" id="_token" name="_token" value="<?php echo csrf_token(); ?>">
     </div>
   </form>
@@ -51,6 +56,7 @@
         layui.use(['layer'],function(){
           var layer=layui.layer;
             $(document).on('click','#btn',function(){
+              var address_id=$('#address_id').val();
               var obj={};
               obj.address_name=$('#address_name').val();
               obj.address_tel=$('#address_tel').val();
@@ -65,15 +71,15 @@
                 obj.is_default=2;
               }
               $.post(
-                "{{url('IndexController/writeaddrdo')}}",
-                {obj:obj,_token:_token},
+                "{{url('IndexController/updateaddrdo')}}",
+                {obj:obj,address_id:address_id,_token:_token},
                 function(res){
-                  // console.log(res)
+                  console.log(res)
                   if(res==1){
-                    layer.msg('收货地址添加成功');
+                    layer.msg('修改成功');
                     location.href="{{url('IndexController/address')}}";
                   }else{
-                    layer.msg('添加失败');
+                    layer.msg('修改失败');
                   }
                 }
               )

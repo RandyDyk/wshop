@@ -64,7 +64,8 @@
 </body>
 @endsection
 @section('my-js')
-
+        <script>
+       
         $(function(){
             layui.use('layer',function(){
                 var layer=layui.layer;
@@ -137,5 +138,5 @@
                 })
             })
         })
-
+        </script>
 @endsection
