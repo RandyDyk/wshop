@@ -351,11 +351,4 @@ class IndexController extends Controller
         }
         // var_dump($data);
     }
-
-    //设为默认地址
-    // public function addressdefault(Request $request)
-    // {
-    //     $address_id=$request->address_id;
-    //     var_dump();
-    // }
 }

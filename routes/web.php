@@ -52,9 +52,8 @@ Route::prefix('IndexController')->group(function () {
     route::any('updateaddrdo','IndexController@updateaddrdo');
     //删除收货地址
     route::any('deladdr','IndexController@deladdr');
-    //设为默认
-    route::any('addressdefault','IndexController@addressdefault');
-    
+
+
 
 });
 route::any('verify/create','CaptchaController@create');

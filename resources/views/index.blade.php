@@ -18,7 +18,7 @@
 				<a href="javascript:;" class="info-icon">
 					<i class="set-icon"></i>
 					<div class="info">
-						<p>点击关注666潮人购官方微信^_^</p>
+						<p>点击关注666潮人购官方微信^^</p>
 					</div>
 				</a>
 			</div>
